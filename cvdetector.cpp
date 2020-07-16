@@ -91,7 +91,7 @@ std::vector<Rect>* CVDetector::getBounds(){
     std::vector<std::vector<Point>> contours;
     std::vector<Vec4i> hierarchy;
     // множество точек контуров аномалий с аппроксимацией
-    findContours(thresh,contours,hierarchy,RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+    findContours(thresh,contours,hierarchy,RETR_TREE, CHAIN_APPROX_SIMPLE);
     for(auto c : contours){
         Rect rect = boundingRect(c);
         if(rect.width >= minimalBoundSize && rect.width < img.cols/2

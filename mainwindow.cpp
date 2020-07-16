@@ -1,9 +1,10 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include <opencv4/opencv2/opencv.hpp>
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QSlider>
+#include <QMenuBar>
+#include <QCoreApplication>
 #include <QVBoxLayout>
 #include <string>
 
