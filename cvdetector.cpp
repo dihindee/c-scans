@@ -11,7 +11,7 @@ void CVDetector::setImage(std::string &path){
 
 void CVDetector::saveImage(std::string &path){
     Mat pic = processImage();
-    imwrite(path,img);
+    imwrite(path,pic);
 }
 
 void CVDetector::setMeanType()
@@ -48,6 +48,37 @@ void CVDetector::setBlurSize(int value)
     blurSize = value;
 }
 
+void CVDetector::setNextChannel()
+{
+    switch (processingChannel) {
+    case GRAYSCALE:
+        processingChannel = BLUE;
+        break;
+    case BLUE:
+        processingChannel = GREEN;
+        break;
+    case GREEN:
+        processingChannel = RED;
+        break;
+    case RED:
+        processingChannel = HUE;
+        break;
+    case HUE:
+        processingChannel = SATURATION;
+        break;
+    case SATURATION:
+        processingChannel = VALUE;
+        break;
+    case VALUE:
+        processingChannel = GRAYSCALE;
+    }
+}
+
+CVDetector::channel CVDetector::getChannel()
+{
+    return processingChannel;
+}
+
 int CVDetector::getAdaptiveBlockSize()
 {
     return adaptiveBlockSize;
@@ -74,8 +105,23 @@ std::vector<Rect>* CVDetector::getBounds(){
         return unitedRects;
     Mat imgray, gauss, thresh;
     //конвертация в серый
-    cvtColor(img,imgray,COLOR_BGR2GRAY);
-
+    if( processingChannel == GRAYSCALE){
+        cvtColor(img,imgray,COLOR_BGR2GRAY);
+    }
+    if( processingChannel >= BLUE && processingChannel <= RED){
+        Mat channels[3];
+        split(img, channels);
+        //нужный канал
+        channels[processingChannel-BLUE].copyTo(imgray);
+    }
+    if( processingChannel >= HUE && processingChannel <= VALUE){
+        //конвертируем в hsv
+        cvtColor(img,imgray, COLOR_BGR2HSV);
+        Mat channels[3];
+        split(imgray, channels);
+        //нужный канал
+        channels[processingChannel-HUE].copyTo(imgray);
+    }
     // здесь должна быть фильтрация для лучшего выделения
 
     // размытие, настраиваемый
@@ -137,7 +183,31 @@ std::vector<Rect>* CVDetector::getBounds(){
 
 cv::Mat CVDetector::processImage(){
     Mat result;
-    img.copyTo(result);
+    if(img.empty())
+        return result;
+    if(showOriginal){
+        img.copyTo(result);
+    }
+    else{
+        if( processingChannel == GRAYSCALE){
+            cvtColor(img,result,COLOR_BGR2GRAY);
+        }
+        if( processingChannel >= BLUE && processingChannel <= RED){
+            Mat channels[3];
+            split(img, channels);
+            //нужный канал
+            channels[processingChannel-BLUE].copyTo(result);
+        }
+        if( processingChannel >= HUE && processingChannel <= VALUE){
+            //конвертируем в hsv
+            cvtColor(img,result, COLOR_BGR2HSV);
+            Mat channels[3];
+            split(result, channels);
+            //нужный канал
+            channels[processingChannel-HUE].copyTo(result);
+        }
+        cvtColor(result,result,COLOR_GRAY2BGR);
+    }
     auto rects = getBounds();
     // рисуем прямоугольники и освобождаем выделенную под них память
     for(auto r : *rects){
@@ -145,5 +215,10 @@ cv::Mat CVDetector::processImage(){
     }
     delete rects;
     return result;
+}
+
+void CVDetector::toggleOriginal()
+{
+    showOriginal = !showOriginal;
 }
 

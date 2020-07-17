@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QRadioButton>
+#include <QPushButton>
 
 #include "imagewidget.h"
 #include "cvdetector.h"
@@ -16,6 +17,7 @@ class MainWindow : public QMainWindow
     QWidget *adaptiveParamsBlock;
     QLabel *blockSizeLabel, *cLabel, *blurLabel;
     QRadioButton *meanType, *gaussianType, *otsuType;
+    QPushButton *channelButton;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -25,6 +27,8 @@ public slots:
     void cSliderMoved(int value);
     void blurSliderMoved(int value);
     void typeToggled(bool checked);
+    void toggleChannel();
+    void toggleOriginalDraw();
     void openFile();
     void saveFile();
 private:

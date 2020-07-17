@@ -7,6 +7,8 @@
 #include <QCoreApplication>
 #include <QVBoxLayout>
 #include <string>
+#include <QCheckBox>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +21,18 @@ MainWindow::MainWindow(QWidget *parent)
     imgViewer = new ImageWidget(this);
     detector = new CVDetector();
     auto layout = new QHBoxLayout(this);
+
+    auto origButton = new QCheckBox("show original",this);
+    origButton->setChecked(true);
+    controlPanel->addWidget(origButton);
+    connect(origButton, &QCheckBox::toggled, this, &MainWindow::toggleOriginalDraw);
+
+    //переключение канала изображения
+    channelButton = new QPushButton("grayscale",this);
+    controlPanel->addWidget(new QLabel("image channel",this));
+    controlPanel->addWidget(channelButton);
+    connect(channelButton, &QPushButton::clicked, this, &MainWindow::toggleChannel);
+
 
     // переключатели метода бинаризации
     auto typeGroup = new QGroupBox("threshold type");
@@ -49,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // слайдер параметра c
     auto cSlider = new QSlider(this);
-    cSlider->setRange(0,100);
+    cSlider->setRange(-50,100);
     cLabel = new QLabel("c " + QString::number(detector->getAdaptiveC()));
     connect(cSlider, &QSlider::valueChanged, this, &MainWindow::cSliderMoved);
     adaptiveParamsLayout->addWidget(cLabel);
@@ -130,6 +144,21 @@ void MainWindow::typeToggled(bool checked)
         detector->setOtsuType();
         adaptiveParamsBlock->setVisible(true); // скрытие ненужных слайдеров
     }
+    updateWidget();
+}
+
+void MainWindow::toggleChannel()
+{
+    detector->setNextChannel();
+    const char* text[] = {"grayscale","blue","green","red","hue","saturation","value"};
+    channelButton->setText(text[detector->getChannel()]);
+    updateWidget();
+}
+
+void MainWindow::toggleOriginalDraw()
+{
+    detector->toggleOriginal();
+    updateWidget();
 }
 
 void MainWindow::openFile()

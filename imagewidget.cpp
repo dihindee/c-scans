@@ -18,6 +18,6 @@ void ImageWidget::updateFrame(cv::Mat newImg){
 void ImageWidget::drawBackground(QPainter *painter, const QRectF &rect){
     painter->resetTransform();
     painter->fillRect(0,0, width(), height(), QColor(0,255,0));
-//    if(frame!= nullptr)
+    if(!img.empty())
         painter->drawImage(QRectF(0,0,width(),height()), frame);
 }

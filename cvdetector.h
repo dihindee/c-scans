@@ -7,11 +7,13 @@
 class CVDetector
 {
     bool isAdaptive = true;
+    bool showOriginal = true; // рисовать области на оригинале или обработанном изображении
     int adaptiveType  = cv::ADAPTIVE_THRESH_GAUSSIAN_C;
     int adaptiveBlockSize = 11;
     int adaptiveC = 20;
     int minimalBoundSize = 5;
     int blurSize = 5;
+    enum channel{GRAYSCALE,BLUE,GREEN,RED,HUE,SATURATION,VALUE} processingChannel = GRAYSCALE; // канал обработки
     cv::Mat img;
 
 public:
@@ -20,12 +22,15 @@ public:
     void saveImage(std::string &path); //запись в файл
     cv::Mat processImage(); // отображение областей на изображании
 
+    void toggleOriginal();
     void setMeanType();
     void setGaussianType();
     void setOtsuType();
     void setAdaptiveBlockSize(int value);
     void setAdaptiveC(int value);
     void setBlurSize(int value);
+    void setNextChannel();
+    channel getChannel();
 
     int getAdaptiveBlockSize();
     int getAdaptiveC();
